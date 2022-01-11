@@ -1,39 +1,63 @@
-<!-- 
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Overlapping Panels [![Pub](https://img.shields.io/pub/v/overlapping_panels.svg)](https://pub.dev/packages/overlapping_panels)
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/guides/libraries/writing-package-pages). 
+Add Discord-like navigation to your app. Demo project here: [overlapping_panels_demo](https://github.com/blackmann/overlapping_panels_demo)
 
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-library-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/developing-packages). 
--->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+<img src="https://i.ibb.co/MsBy18m/ezgif-com-gif-maker.gif" alt="Demo" height="400">
 
-## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+### TODO
 
-## Getting started
+This widget does not support navigation events yet. So pressing the back button, does not slide the `main` panel back into view. This feature will be implemented in the nearest future.
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+### Usage
 
-## Usage
-
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder. 
+Simple and straight to the point. Just provide usual widgets for all panels:
 
 ```dart
-const like = 'sample';
+class _MyHomePageState extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        OverlappingPanels(
+          // Using the Builder widget is not required. You can pass your widget directly. But to use `OverlappingPanelsState.of(context)` you need to wrap your widget in a Builder
+          left: Builder(builder: (context) {
+            return const LeftPage();
+          }),
+          right: Builder(
+            builder: (context) => const RightPage(),
+          ),
+          main: Builder(
+            builder: (context) {
+              return const MainPage();
+            },
+          ),
+          onSideChange: (side) {
+            setState(() {
+              if (side == RevealSide.main) {
+                // hide something
+              } else if (side == RevealSide.left) {
+                // show something
+              }
+            });
+          },
+        ),
+      ],
+    );
+  }
+}
 ```
 
-## Additional information
+To be able to reveal a panel with the tap of a button, for example, do:
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+```dart
+IconButton(
+  icon: const Icon(Icons.menu),
+  onPressed: () {
+    // This is the main point
+    OverlappingPanelsState.of(context)?.reveal(RevealSide.left);
+  },
+)
+```

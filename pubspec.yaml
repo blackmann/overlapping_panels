@@ -1,10 +1,10 @@
 name: overlapping_panels
-description: A new Flutter package project.
+description: Inspired by Discord's mobile app navigation. Add left and right panels to your app with gestures to reveal panels and callbacks to listen for reveals.
 version: 0.0.1
-homepage:
+homepage: https://github.com/blackmann/overlapping_panels
 
 environment:
-  sdk: ">=2.16.0-144.0.dev <3.0.0"
+  sdk: ">=2.15.1 <3.0.0"
   flutter: ">=1.17.0"
 
 dependencies:
