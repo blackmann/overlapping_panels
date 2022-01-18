@@ -1,6 +1,6 @@
 name: overlapping_panels
 description: Inspired by Discord's mobile app navigation. Add left and right panels to your app with gestures to reveal panels and callbacks to listen for reveals.
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/blackmann/overlapping_panels
 
 environment:

@@ -38,6 +38,10 @@ class OverlappingPanels extends StatefulWidget {
       Key? key})
       : super(key: key);
 
+  static OverlappingPanelsState? of(BuildContext context) {
+    return context.findAncestorStateOfType<OverlappingPanelsState>();
+  }
+
   @override
   State<StatefulWidget> createState() {
     return OverlappingPanelsState();
@@ -48,10 +52,6 @@ class OverlappingPanelsState extends State<OverlappingPanels>
     with TickerProviderStateMixin {
   AnimationController? controller;
   double translate = 0;
-
-  static OverlappingPanelsState? of(BuildContext context) {
-    return context.findAncestorStateOfType<OverlappingPanelsState>();
-  }
 
   double _calculateGoal(double width, int multiplier) {
     return (multiplier * width) + (-multiplier * widget.restWidth);

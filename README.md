@@ -22,7 +22,7 @@ class _MyHomePageState extends StatelessWidget {
     return Stack(
       children: [
         OverlappingPanels(
-          // Using the Builder widget is not required. You can pass your widget directly. But to use `OverlappingPanelsState.of(context)` you need to wrap your widget in a Builder
+          // Using the Builder widget is not required. You can pass your widget directly. But to use `OverlappingPanels.of(context)` you need to wrap your widget in a Builder
           left: Builder(builder: (context) {
             return const LeftPage();
           }),
@@ -57,7 +57,7 @@ IconButton(
   icon: const Icon(Icons.menu),
   onPressed: () {
     // This is the main point
-    OverlappingPanelsState.of(context)?.reveal(RevealSide.left);
+    OverlappingPanels.of(context)?.reveal(RevealSide.left);
   },
 )
 ```
