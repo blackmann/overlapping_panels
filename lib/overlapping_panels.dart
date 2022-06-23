@@ -14,13 +14,13 @@ enum RevealSide { left, right, main }
 /// Discord mobile app's navigation.
 class OverlappingPanels extends StatefulWidget {
   /// The left panel
-  final Widget left;
+  final Widget? left;
 
   /// The main panel
   final Widget main;
 
   /// The right panel
-  final Widget right;
+  final Widget? right;
 
   /// The offset to use to keep the main panel visible when the left or right
   /// panel is revealed.
@@ -29,13 +29,12 @@ class OverlappingPanels extends StatefulWidget {
   /// A callback to notify when a panel reveal has completed.
   final ValueChanged<RevealSide>? onSideChange;
 
-  const OverlappingPanels(
-      {required this.left,
-      required this.main,
-      required this.right,
-      this.restWidth = 40,
-      this.onSideChange,
-      Key? key})
+  const OverlappingPanels({this.left,
+    required this.main,
+    this.right,
+    this.restWidth = 40,
+    this.onSideChange,
+    Key? key})
       : super(key: key);
 
   static OverlappingPanelsState? of(BuildContext context) {
@@ -58,7 +57,10 @@ class OverlappingPanelsState extends State<OverlappingPanels>
   }
 
   void _onApplyTranslation() {
-    final mediaWidth = MediaQuery.of(context).size.width;
+    final mediaWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     final animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200));
@@ -88,7 +90,7 @@ class OverlappingPanelsState extends State<OverlappingPanels>
       });
     } else {
       final animation =
-          Tween<double>(begin: translate, end: 0).animate(animationController);
+      Tween<double>(begin: translate, end: 0).animate(animationController);
 
       animation.addListener(() {
         setState(() {
@@ -106,7 +108,10 @@ class OverlappingPanelsState extends State<OverlappingPanels>
       return;
     }
 
-    final mediaWidth = MediaQuery.of(context).size.width;
+    final mediaWidth = MediaQuery
+        .of(context)
+        .size
+        .width;
 
     final multiplier = (direction == RevealSide.left ? 1 : -1);
     final goal = _calculateGoal(mediaWidth, multiplier);
@@ -122,7 +127,7 @@ class OverlappingPanelsState extends State<OverlappingPanels>
     });
 
     final animation =
-        Tween<double>(begin: translate, end: goal).animate(animationController);
+    Tween<double>(begin: translate, end: goal).animate(animationController);
 
     animation.addListener(() {
       setState(() {
@@ -135,7 +140,11 @@ class OverlappingPanelsState extends State<OverlappingPanels>
 
   void onTranslate(double delta) {
     setState(() {
-      translate += delta;
+      final translate = this.translate + delta;
+      if (translate < 0 && widget.right != null ||
+          translate > 0 && widget.left != null) {
+        this.translate = translate;
+      }
     });
   }
 

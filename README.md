@@ -22,7 +22,8 @@ class _MyHomePageState extends StatelessWidget {
     return Stack(
       children: [
         OverlappingPanels(
-          // Using the Builder widget is not required. You can pass your widget directly. But to use `OverlappingPanels.of(context)` you need to wrap your widget in a Builder
+          // Using the Builder widget is not required. You can pass your widget directly. 
+          // But to use `OverlappingPanels.of(context)` you need to wrap your widget in a Builder
           left: Builder(builder: (context) {
             return const LeftPage();
           }),
