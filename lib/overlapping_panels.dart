@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:core';
 
 const double bleedWidth = 20;
+const double minPixelsPerSecond = 240;
 
 /// Display sections
 enum RevealSide { left, right, main }
@@ -30,12 +31,11 @@ class OverlappingPanels extends StatefulWidget {
   final ValueChanged<RevealSide>? onSideChange;
 
   const OverlappingPanels({this.left,
-    required this.main,
-    this.right,
-    this.restWidth = 40,
-    this.onSideChange,
-    Key? key})
-      : super(key: key);
+      required this.main,
+      this.right,
+      this.restWidth = 40,
+      this.onSideChange,
+      super.key});
 
   static OverlappingPanelsState? of(BuildContext context) {
     return context.findAncestorStateOfType<OverlappingPanelsState>();
@@ -51,19 +51,20 @@ class OverlappingPanelsState extends State<OverlappingPanels>
     with TickerProviderStateMixin {
   AnimationController? controller;
   double translate = 0;
+  double lastTranslate = 0;
 
   double _calculateGoal(double width, int multiplier) {
     return (multiplier * width) + (-multiplier * widget.restWidth);
   }
 
-  void _onApplyTranslation() {
+  void _onApplyTranslation(Offset pixelsPerSecond) {
     final mediaWidth = MediaQuery
         .of(context)
         .size
         .width;
 
     final animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 200));
+        vsync: this, duration: const Duration(milliseconds: 160));
 
     animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -76,28 +77,39 @@ class OverlappingPanelsState extends State<OverlappingPanels>
       }
     });
 
-    if (translate.abs() >= mediaWidth / 2) {
+    double goal;
+    if (pixelsPerSecond.dx.abs() > minPixelsPerSecond) {
+      final multiplier = (translate > lastTranslate
+          ? lastTranslate < 0
+              ? 0
+              : 1
+          : lastTranslate > 0
+              ? 0
+              : -1);
+      goal = _calculateGoal(mediaWidth, multiplier);
+    } else if (translate.abs() >= mediaWidth / 2) {
       final multiplier = (translate > 0 ? 1 : -1);
-      final goal = _calculateGoal(mediaWidth, multiplier);
-      final Tween<double> tween = Tween(begin: translate, end: goal);
-
-      final animation = tween.animate(animationController);
-
-      animation.addListener(() {
-        setState(() {
-          translate = animation.value;
-        });
-      });
+      goal = _calculateGoal(mediaWidth, multiplier);
     } else {
-      final animation =
-      Tween<double>(begin: translate, end: 0).animate(animationController);
-
-      animation.addListener(() {
-        setState(() {
-          translate = animation.value;
-        });
-      });
+      goal = 0;
     }
+
+    if (widget.left == null && goal > 0) goal = 0;
+    if (widget.right == null && goal < 0) goal = 0;
+
+    final Tween<double> tween = Tween<double>(begin: translate, end: goal);
+
+    final animation = tween.animate(CurvedAnimation(
+      parent: animationController,
+      curve: Curves.fastOutSlowIn,
+    ));
+
+    animation.addListener(() {
+      setState(() {
+        translate = animation.value;
+        lastTranslate = animation.value;
+      });
+    });
 
     animationController.forward();
   }
@@ -121,13 +133,13 @@ class OverlappingPanelsState extends State<OverlappingPanels>
 
     animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        _onApplyTranslation();
+        _onApplyTranslation(Offset.zero);
         animationController.dispose();
       }
     });
 
     final animation =
-    Tween<double>(begin: translate, end: goal).animate(animationController);
+        Tween<double>(begin: translate, end: goal).animate(animationController);
 
     animation.addListener(() {
       setState(() {
@@ -146,6 +158,22 @@ class OverlappingPanelsState extends State<OverlappingPanels>
         this.translate = translate;
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant OverlappingPanels oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.left == null) {
+      setState(() {
+        translate = 0;
+      });
+    } else {
+      final mediaWidth = MediaQuery.of(context).size.width;
+      setState(() {
+        translate = _calculateGoal(mediaWidth, 1);
+      });
+    }
+    _onApplyTranslation(Offset.zero);
   }
 
   @override
@@ -169,7 +197,7 @@ class OverlappingPanelsState extends State<OverlappingPanels>
           onTranslate(details.delta.dx);
         },
         onHorizontalDragEnd: (details) {
-          _onApplyTranslation();
+          _onApplyTranslation(details.velocity.pixelsPerSecond);
         },
       ),
     ]);
